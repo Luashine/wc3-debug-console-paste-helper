@@ -50,6 +50,8 @@ Func getClipboardLinesForWc3()
 	
 	if UBound($textLines) <= 1 then
 		MsgBox(0, "Error", "Expected more than 1 element after split")
+		local $arr[1] = [""]
+		return $arr
 	elseif UBound($textLines) == 2 then
 		; nothing needs to be changed, paste the line as is
 		return $textLines
