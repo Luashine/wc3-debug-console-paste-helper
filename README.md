@@ -47,7 +47,7 @@ a blanket ban that flags ALL au3 scripts as malware.
 ## Usage instructions
 
 - Open [in-game console](https://www.hiveworkshop.com/threads/lua-debug-utils-ingame-console-etc.330758/) with `-console`
-- Start the program
+- Start the program ([download](https://github.com/Luashine/wc3-debug-console-paste-helper/releases))
 - Copy code
 - Go to Warcraft III window
 - Press `CTRL+B`
