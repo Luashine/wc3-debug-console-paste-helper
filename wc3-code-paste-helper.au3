@@ -147,7 +147,7 @@ Func copyPasteCodeToWc3()
 		AutoItSetOption("SendKeyDelay", $CFG_SEND_KEY_DELAY)
 		AutoItSetOption("SendKeyDownDelay", $CFG_SEND_KEY_DOWN_DELAY)
 		
-		Send("{ENTER}")
+		Send("{ESCAPE}") ; Close chat if open
 		for $i = 1 to UBound($wc3Lines)-1
 			local $line = $wc3Lines[$i]
 			if $line == "" then
