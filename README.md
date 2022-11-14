@@ -35,6 +35,7 @@ print("x + y = ".. x + y)
 - Warns about lines too long for chat (max: 127 characters)
 - Audio indicators
 - Restores your clipboard after pasting in WC3
+- Configurable
 - Probably many false-positives by anti-virus software (complain to them about it)
     - Why? AutoIt was used by scriptkiddies in the past, but it doesn't excuse
 a blanket ban that flags ALL au3 scripts as malware.

@@ -5,15 +5,13 @@
 #include <Process.au3>
 
 #include "CreateSemaphore_udf.au3"
+#include "config.au3"
 
 ; Attempted:
 ; See with API Monitor v2 whether game uses RegisterHotkey: NO
 ; Hook other Clipboard functions: None showed up
 ; Try PostMessage for unattended pasting: Nope
 ; Plain Send: works :/
-
-Global Const $WC3_CHAT_LENGTH_LIMIT = 127 ; inclusive. Tested on v1.32.10 
-
 
 Func displayArray(ByRef $array)
     Local $arrayLength = UBound($array)
@@ -146,8 +144,8 @@ Func copyPasteCodeToWc3()
 	if $wc3Lines[0] <> "" then
 		local $sendKeyDelay_restore = AutoItSetOption("SendKeyDelay")
 		local $sendKeyDownDelay_restore = AutoItSetOption("SendKeyDownDelay")
-		AutoItSetOption("SendKeyDelay", 50)
-		AutoItSetOption("SendKeyDownDelay", 100)
+		AutoItSetOption("SendKeyDelay", $CFG_SEND_KEY_DELAY)
+		AutoItSetOption("SendKeyDownDelay", $CFG_SEND_KEY_DOWN_DELAY)
 		
 		Send("{ENTER}")
 		for $i = 1 to UBound($wc3Lines)-1
@@ -167,7 +165,7 @@ Func copyPasteCodeToWc3()
 		AutoItSetOption("SendKeyDelay", $sendKeyDelay_restore)
 		AutoItSetOption("SendKeyDownDelay", $sendKeyDownDelay_restore)
 		ClipPut($wc3Lines[0]) ; restore clipboard
-		Beep(800,200)
+		BeepOptional(800,200)
 	endif
 Endfunc
 
@@ -188,6 +186,12 @@ Func enforceSingleInstance()
 	endif
 Endfunc
 
+Func BeepOptional($freqHz = 500, $durationMs = 1000)
+	if $CFG_ENABLE_SOUND then
+		Beep($freqHz, $durationMs)
+	endif
+Endfunc
+
 enforceSingleInstance()
 Global $user32H = DllOpen("user32.dll")
 While 1
@@ -202,7 +206,7 @@ While 1
 			; and remain in CTRL_DOWN state system-wide!
 		Wend
 		
-		Beep(500,200)
+		BeepOptional(500,200)
 		copyPasteCodeToWc3()
 		
 		Sleep(300)
