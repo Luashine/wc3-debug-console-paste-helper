@@ -12,6 +12,8 @@
 ; Try PostMessage for unattended pasting: Nope
 ; Plain Send: works :/
 
+Global Const $WC3_CHAT_LENGTH_LIMIT = 127 ; inclusive. Tested on v1.32.10 
+
 
 Func displayArray(ByRef $array)
     Local $arrayLength = UBound($array)
@@ -54,7 +56,12 @@ Func getClipboardLinesForWc3()
 		return $arr
 	elseif UBound($textLines) == 2 then
 		; nothing needs to be changed, paste the line as is
-		return $textLines
+		if enforceLineLengthArr($textLines, 1, 1) then
+			return $textLines
+		else
+			local $empty[1] = [""]
+			return $empty
+		endif
 	else
 	
 		local $lastLineNonEmpty = 0
@@ -94,11 +101,43 @@ Func getClipboardLinesForWc3()
 		;displayArray($wc3Lines) ; correct
 		;Sleep(750)
 		
-		return $wc3Lines
+		if enforceLineLengthArr($wc3Lines, 1, UBound($textLines) - 1) then
+			return $wc3Lines
+		else
+			; fall-through to empty end
+		endif
 	endif
 	
-	local $arr[1] = [""]
-	return $arr
+	local $empty[1] = [""]
+	return $empty
+Endfunc
+
+; Returns true if OK and below limit
+; Returns false otherwise
+Func enforceLineLengthArr(ByRef $arrLines, $firstIndex, $lastIndex)
+	for $i = $firstIndex to $lastIndex
+		local $wc3Line = $arrLines[$i]
+		
+		if enforceLineLength($wc3Line, $i) = false then
+			return false
+		endif
+	Next
+	return true
+Endfunc
+
+Func enforceLineLength($wc3Line, $lineNum = 1)
+	;if StringLen($wc3Line) > $WC3_CHAT_LENGTH_LIMIT then
+	local $length = BinaryLen(StringToBinary($wc3Line, $SB_UTF8))
+	if $length > $WC3_CHAT_LENGTH_LIMIT then
+		MsgBox($MB_ICONERROR, "Error: Line too long", "The line is too long for WC3 chat!" & @CRLF _
+		& "Line length (bytes): " & $length _
+		& " (max: " & $WC3_CHAT_LENGTH_LIMIT & ")" & @CRLF _
+		& "Line number (approx): " & $lineNum & @CRLF _
+		& @CRLF & $wc3Line)
+		
+		return false
+	endif
+	return true
 Endfunc
 
 Func copyPasteCodeToWc3()
@@ -127,7 +166,7 @@ Func copyPasteCodeToWc3()
 		AutoItSetOption("SendKeyDelay", $sendKeyDelay_restore)
 		AutoItSetOption("SendKeyDownDelay", $sendKeyDownDelay_restore)
 		ClipPut($wc3Lines[0]) ; restore clipboard
-		Beep(800,300)
+		Beep(800,200)
 	endif
 Endfunc
 
@@ -162,7 +201,7 @@ While 1
 			; and remain in CTRL_DOWN state system-wide!
 		Wend
 		
-		Beep(500,300)
+		Beep(500,200)
 		copyPasteCodeToWc3()
 		
 		Sleep(300)

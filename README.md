@@ -32,6 +32,7 @@ print("x + y = ".. x + y)
 - Multi-line paste
 - Prepares code lines for you
 - Skips empty lines
+- Warns about lines too long for chat (max: 127 characters)
 - Audio indicators
 - Restores your clipboard after pasting in WC3
 - Probably many false-positives by anti-virus software (complain to them about it)
