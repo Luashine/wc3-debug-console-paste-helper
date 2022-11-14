@@ -47,6 +47,7 @@ Func getClipboardLinesForWc3()
 	; The array will purposefully contain empty lines
 	; Index 0 is array size, but we will put the original clipboard text here
 	local $textLines = StringSplit($text, @CRLF) ; default splits at \r AND \n each
+	$textLines[0] = $text
 	
 	;displayArray($textLines) ; correct here
 	
