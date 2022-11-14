@@ -26,6 +26,10 @@ will be pasted in game chat like this to be executed:
 print("x + y = ".. x + y)
 ```
 
+Watch the [video here](https://github.com/Luashine/wc3-debug-console-paste-helper/issues/1)
+
+<video src="https://user-images.githubusercontent.com/103937213/201783924-1320cf78-bd72-47fe-a750-27dd784ba2f8.mp4" />
+
 ## Features:
 
 - Fast
