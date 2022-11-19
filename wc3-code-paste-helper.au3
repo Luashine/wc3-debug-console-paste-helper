@@ -62,45 +62,41 @@ Func getClipboardLinesForWc3()
 			return $empty
 		endif
 	else
-	
-		local $lastLineNonEmpty = 0
+		; count non-whitespace lines for array alloc
+		Local $nonEmptyLineCount = 0
 		for $i = 1 to UBound($textLines) - 1
 			; has non-whitespace character?
 			if StringRegExp($textLines[$i], "\S") = 1 then
-				$lastLineNonEmpty = $i
+				$nonEmptyLineCount += 1
 			endif
 		next
 		
 		; lastLineNonEmpty is an index, [0] has the full string
-		local $wc3Lines[$lastLineNonEmpty + 1]
+		Local $wc3Lines[$nonEmptyLineCount + 1]
 		$wc3Lines[0] = $text
 		
-		for $i = 1 to $lastLineNonEmpty
-			local $textLine = $textLines[$i]
-			
-			if StringLen($textLine) == 0 then
-				; skip
-				ContinueLoop
-			endif
-			
-			; strip leading and trailing whitespace-type chars
-			local $wc3Line = StringStripWS( _
-				StringStripWS($textLine, $STR_STRIPLEADING), _
-				$STR_STRIPTRAILING)
-			
-			if $i <> $lastLineNonEmpty then
-				; add continuation character
-				$wc3Lines[$i] = ">" & $wc3Line
-			else
-				; final line, execute after this
-				$wc3Lines[$i] = $wc3Line
+		; fill in array
+		local $wc3LinesIndex = 1
+		local $textLinesIndexLast = UBound($textLines) - 1
+		for $i = 1 to $textLinesIndexLast
+			; has non-whitespace character?
+			if StringRegExp($textLines[$i], "\S") = 1 then
+				; 1. if not last line, prepend ">"
+				; 2. Strip leading/trailing white-spaces
+				$wc3Lines[$wc3LinesIndex] = ($i <> $textLinesIndexLast ? ">" : "") & _
+					StringStripWS( _
+						StringStripWS($textLines[$i], $STR_STRIPLEADING), _
+					$STR_STRIPTRAILING)
+				
+				$wc3LinesIndex += 1
 			endif
 		next
+		Local $wc3LinesIndexLast = $wc3LinesIndex-1
 		
 		;displayArray($wc3Lines) ; correct
 		;Sleep(750)
 		
-		if enforceLineLengthArr($wc3Lines, 1, UBound($textLines) - 1) then
+		if enforceLineLengthArr($wc3Lines, 1, $wc3LinesIndexLast) then
 			return $wc3Lines
 		else
 			; fall-through to empty end
@@ -111,8 +107,9 @@ Func getClipboardLinesForWc3()
 	return $empty
 Endfunc
 
+; Checks an entire array of string lines
 ; Returns true if OK and below limit
-; Returns false otherwise
+; Returns false otherwise and displays a MsgBox
 Func enforceLineLengthArr(ByRef $arrLines, $firstIndex, $lastIndex)
 	for $i = $firstIndex to $lastIndex
 		local $wc3Line = $arrLines[$i]
@@ -124,6 +121,11 @@ Func enforceLineLengthArr(ByRef $arrLines, $firstIndex, $lastIndex)
 	return true
 Endfunc
 
+; Checks a string
+; $wc3Line: string to check
+; $lineNum: this is to help with multi-line strings, when an error msg is displayed
+; Returns true if OK and below limit
+; Returns false otherwise and displays a MsgBox
 Func enforceLineLength($wc3Line, $lineNum = 1)
 	;if StringLen($wc3Line) > $WC3_CHAT_LENGTH_LIMIT then
 	local $length = BinaryLen(StringToBinary($wc3Line, $SB_UTF8))
@@ -149,12 +151,8 @@ Func copyPasteCodeToWc3()
 		
 		Send("{ESCAPE}") ; Close chat if open
 		for $i = 1 to UBound($wc3Lines)-1
-			local $line = $wc3Lines[$i]
-			if $line == "" then
-				ContinueLoop
-			endif
 			
-			ClipPut($line)
+			ClipPut($wc3Lines[$i])
 			Send("{ENTER}")
 			Send("^v") ; CTRL+V to paste (small v, capital V does not work)
 			
